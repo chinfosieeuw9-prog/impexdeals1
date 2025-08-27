@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(160deg,#e3f2fd 0%,#d4ecff 28%,#c2e3ff 52%,#b1dbff 72%,#a3d4ff 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  --gloss-spot: radial-gradient(circle at 35% 18%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.35) 25%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 70%);
+  transition: background .6s ease, color .4s ease;
+}
+
+body:before, body:after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0; /* inset shorthand fallback */
+  pointer-events: none;
+  z-index: -1;
+}
+
+body:before {
+  background: var(--gloss-spot);
+  mix-blend-mode: screen;
+  opacity: .55;
+}
+
+body:after {
+  background:
+    radial-gradient(circle at 78% 72%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 42%, rgba(255,255,255,0) 70%),
+    linear-gradient(160deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%);
+  -webkit-backdrop-filter: saturate(170%) blur(3px);
+  backdrop-filter: saturate(170%) blur(3px);
+  opacity: .9;
+}
+
+/* Dark mode body styling (toggled via body.site-dark class) */
+body.site-dark {
+  background: radial-gradient(circle at 20% 18%, #1b2b3d 0%, #142434 35%, #101d2b 55%, #0e1825 70%) fixed, linear-gradient(160deg,#0f1b2a 0%, #132537 40%, #183349 70%, #1d4461 100%) fixed;
+  color: #d9e6f3;
+  --gloss-spot: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 70%);
+}
+body.site-dark:before {
+  background: var(--gloss-spot);
+  mix-blend-mode: overlay;
+  opacity: .35;
+}
+body.site-dark:after {
+  background:
+    radial-gradient(circle at 75% 72%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 42%, rgba(255,255,255,0) 70%),
+    linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%);
+  opacity: .6;
+  -webkit-backdrop-filter: saturate(140%) blur(4px);
+  backdrop-filter: saturate(140%) blur(4px);
+}
+
+/* Lighter dark (used now) */
+body.site-dark-light {
+  background: linear-gradient(145deg,#edf2f6 0%, #e4ecf2 40%, #dae5ed 70%, #d1dee7 100%) fixed;
+  color: #1d3147;
+}
+body.site-dark-light:before { display:none; }
+body.site-dark-light:after { display:none; }
+
+/* Dim (tussen variant) */
+body.site-dim {
+  background: linear-gradient(155deg,#e7f1f9 0%, #d9ebf6 40%, #cce3f0 70%, #bfd9ea 100%) fixed;
+  color: #1d3147;
+}
+body.site-dim:before {
+  background: radial-gradient(circle at 38% 18%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 30%, rgba(255,255,255,0.15) 55%, rgba(255,255,255,0) 75%);
+  mix-blend-mode: screen;
+  opacity: .75;
+}
+body.site-dim:after {
+  background:
+    radial-gradient(circle at 72% 72%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 42%, rgba(255,255,255,0) 70%),
+    linear-gradient(150deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%);
+  opacity: .85;
+}
+
+/* Optional even lighter experimental variants (not yet toggled) */
+body.site-dim2 { background: linear-gradient(150deg,#f1f7fb 0%, #e5f1f9 40%, #daeaf4 70%, #d2e4ef 100%) fixed; }
+body.site-dim3 { background: linear-gradient(150deg,#f6fafe 0%, #edf4fa 40%, #e6eef5 70%, #dee7ef 100%) fixed; }
+
+#root {
+  isolation: isolate;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

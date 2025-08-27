@@ -1,0 +1,81 @@
+/* Social Trading Hub styling */
+.social-wrap {max-width:1280px;margin:0 auto;padding:1rem 0 3rem;}
+.social-header {text-align:center;padding:1.5rem 0 1.2rem;}
+.social-header h1 {margin:0 0 .6rem;font-size:2.2rem;background:linear-gradient(90deg,#162b47,#2b5f9f);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;}
+.social-header .lead {max-width:760px;margin:0 auto 1.2rem;color:#1d2b42;line-height:1.5;}
+.social-actions {display:flex;justify-content:center;gap:.9rem;flex-wrap:wrap;}
+.pill-btn {border:1px solid #2b5f9f;background:rgba(43,95,159,.08);color:#162b47;padding:.65rem 1.3rem;border-radius:40px;font-size:.85rem;font-weight:500;cursor:pointer;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
+.pill-btn.primary {background:linear-gradient(95deg,#173557,#1f4d82 55%,#2a6fab);color:#fff;border:1px solid rgba(255,255,255,.4);box-shadow:0 4px 14px -4px rgba(20,40,80,.4);} 
+.pill-btn:hover {background:rgba(43,95,159,.16);} .pill-btn.primary:hover {filter:brightness(1.07);} 
+.pill-btn.small {padding:.5rem 1rem;font-size:.75rem;} .pill-btn.tiny {padding:.35rem .8rem;font-size:.65rem;}
+
+.social-layout {display:grid;grid-template-columns:1fr 320px;gap:2.2rem;padding:0 1rem;margin-top:.5rem;}
+@media (max-width:1100px){.social-layout{grid-template-columns:1fr;}}
+
+.feed {display:flex;flex-direction:column;gap:1.2rem;}
+.subhead {margin:0 0 .6rem;font-size:.75rem;letter-spacing:.5px;text-transform:uppercase;color:#2b5f9f;font-weight:600;}
+
+.composer {display:flex;gap:.9rem;padding:1rem 1.1rem;border:1px solid #e0e8f4;background:#fff;border-radius:20px;box-shadow:0 4px 16px -6px rgba(30,60,120,.15);} 
+.composer textarea {width:100%;resize:vertical;min-height:70px;border:1px solid #d2dbe8;border-radius:14px;padding:.65rem .85rem;font-family:inherit;font-size:.85rem;line-height:1.45;}
+.composer textarea:focus {outline:none;border-color:#2b5f9f;box-shadow:0 0 0 3px rgba(43,95,159,.15);} 
+.composer-bar {display:flex;justify-content:space-between;align-items:center;margin-top:.55rem;}
+.mini-tools span {font-size:1rem;cursor:pointer;margin-right:.45rem;}
+.mini-tools span:hover {filter:brightness(1.2);} 
+
+.post {display:flex;gap:.95rem;padding:1rem 1.1rem 1.1rem;border:1px solid #e0e8f4;background:#fff;border-radius:22px;box-shadow:0 6px 18px -8px rgba(30,60,120,.18),0 2px 6px -2px rgba(20,40,80,.12);} 
+.post-body header {font-size:.75rem;color:#34506f;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+.post-body header strong {font-size:.85rem;color:#162b47;}
+.post-body header .veri {color:#3e7ed6;font-size:.75rem;background:#e2f0ff;border-radius:4px;padding:1px 4px;font-weight:600;}
+.post-body header .handle {color:#557095;}
+.post-body header .dot {width:3px;height:3px;border-radius:50%;background:#557095;display:inline-block;margin:0 .25rem;}
+.post-body .text {margin:.4rem 0 .6rem;font-size:.85rem;line-height:1.5;white-space:pre-wrap;}
+.media {border-radius:16px;overflow:hidden;border:1px solid #d7e3f3;}
+.media img {width:100%;display:block;object-fit:cover;max-height:340px;}
+.post-actions {display:flex;gap:.4rem;flex-wrap:wrap;}
+.post-actions button {background:rgba(43,95,159,.08);border:1px solid rgba(43,95,159,.25);color:#173557;padding:.4rem .75rem;font-size:.65rem;border-radius:30px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;}
+.post-actions button:hover {background:rgba(43,95,159,.18);} 
+
+.avatar {width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff;font-size:.95rem;box-shadow:0 4px 10px -4px rgba(0,0,0,.35);} 
+.avatar.small {width:38px;height:38px;font-size:.8rem;}
+.avatar.static {background:#2b5f9f;}
+.avatar.dynamic {background:var(--avatar-bg,#2b5f9f);}
+.avatar.dynamic[data-avatar] { background: #2b5f9f; }
+[data-avatar="3b82f6"].avatar.dynamic { background:#3b82f6; }
+[data-avatar="10b981"].avatar.dynamic { background:#10b981; }
+[data-avatar="059669"].avatar.dynamic { background:#059669; }
+[data-avatar="2b5f9f"].avatar.dynamic { background:#2b5f9f; }
+.center-more {text-align:center;margin-top:1rem;}
+.follow-btn.following {background:#2b5f9f;color:#fff;}
+
+.side {display:flex;flex-direction:column;gap:1.6rem;}
+.panel {background:#fff;border:1px solid #e0e8f4;padding:1rem 1.1rem 1.2rem;border-radius:20px;box-shadow:0 6px 16px -8px rgba(30,60,120,.15);} 
+.tags {display:flex;flex-wrap:wrap;gap:.55rem;}
+.tag {background:linear-gradient(95deg,#173557,#1f4d82 55%,#2a6fab);color:#fff;padding:.4rem .8rem .45rem;border-radius:30px;font-size:.65rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 3px 10px -4px rgba(0,0,0,.35);} 
+.tag small {color:rgba(255,255,255,.8);font-size:.55rem;}
+.tag {cursor:pointer;transition:.15s;} .tag:hover {filter:brightness(1.12) saturate(1.2);}
+
+.suggested {list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.85rem;}
+.suggested li {display:flex;align-items:center;gap:.7rem;}
+.suggested .info {display:flex;flex-direction:column;line-height:1;}
+.suggested .info .meta {font-size:.55rem;letter-spacing:.5px;color:#5a6c86;margin-top:3px;}
+
+.panel.stats .stats-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem;margin-top:.3rem;}
+.stats-grid .val {display:block;font-size:1rem;font-weight:600;color:#162b47;}
+.stats-grid .label {display:block;font-size:.55rem;letter-spacing:.5px;color:#5a6c86;text-transform:uppercase;margin-top:2px;}
+
+body {background:#f0f5fc;}
+
+/* Comments */
+.comments {margin-top:.7rem;padding:.7rem .85rem .9rem;border:1px solid #e4ecf6;background:#f9fbfe;border-radius:16px;}
+.comment-box {display:flex;gap:.5rem;margin-bottom:.6rem;}
+.comment-input {flex:1;border:1px solid #d2dbe8;border-radius:30px;padding:.45rem .85rem;font-size:.7rem;}
+.comment-input:focus {outline:none;border-color:#2b5f9f;box-shadow:0 0 0 2px rgba(43,95,159,.15);} 
+.comment-list {list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4rem;max-height:200px;overflow:auto;}
+.comment {font-size:.7rem;line-height:1.35;background:#fff;padding:.45rem .6rem;border:1px solid #e0e8f4;border-radius:10px;display:flex;gap:.4rem;align-items:center;}
+.comment strong {color:#162b47;font-size:.7rem;}
+.comment .time {margin-left:auto;font-size:.6rem;color:#607491;}
+.comment.empty {justify-content:center;background:transparent;border-style:dashed;color:#607491;}
+
+/* Post actions row additions */
+.post-actions button {position:relative;}
+.post-actions button:active {transform:scale(.95);} 

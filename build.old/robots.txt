@@ -1,0 +1,7 @@
+User-agent: *
+Disallow:
+
+# Dynamische sitemap (gegenereerd door server /sitemap.xml)
+Sitemap: https://www.impexdeals.example/sitemap.xml
+
+# Info: https://www.robotstxt.org/robotstxt.html
