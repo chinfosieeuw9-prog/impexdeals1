@@ -1,7 +1,10 @@
+// --- DEBUG: Toon alle users (tijdelijk, alleen voor test!) ---
+// Plaats deze direct na 'const app = express();'
 
 // Laad .env variabelen zo vroeg mogelijk
 try { require('dotenv').config(); } catch(e) { console.warn('dotenv niet geladen:', e.message); }
 const express = require('express');
+const app = express();
 const mysql = require('mysql2');
 const compression = require('compression');
 let helmet; try { helmet = require('helmet'); } catch { console.warn('helmet niet geïnstalleerd (npm i helmet)'); }
@@ -9,36 +12,25 @@ let rateLimit; try { rateLimit = require('express-rate-limit'); } catch { consol
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
+const pool = require('./db');
 const multer = require('multer');
-let sharp; try { sharp = require('sharp'); } catch { console.warn('sharp niet geïnstalleerd'); }
-let redisLib; let redisClient; const enableRedis = process.env.ENABLE_REDIS === '1' || !!process.env.REDIS_URL;
-if (enableRedis) {
-  (async()=>{ try { redisLib = require('redis');
-    const url = process.env.REDIS_URL || 'redis://localhost:6379';
-    let redisErrorCount = 0;
-    redisClient = redisLib.createClient({
-      url,
-      socket: {
-        reconnectStrategy: (retries)=> {
-          if (retries > 5) { console.warn('[redis] stop na 5 pogingen'); return new Error('retries_exhausted'); }
-          return Math.min(200 * retries, 1500); // backoff
-        }
-      }
-    });
-    redisClient.on('error', e=> {
-      redisErrorCount++; if (redisErrorCount <= 3 || redisErrorCount % 10 === 0) console.warn('[redis] error', e.message);
-    });
-    redisClient.on('end', ()=> console.log('[redis] verbinding gesloten'));
-    await redisClient.connect();
-    console.log('[redis] verbonden op', url);
-  } catch(e){ console.warn('[redis] uitgeschakeld / niet beschikbaar:', e.message); } })();
-} else {
-  console.log('[redis] overgeslagen (stel ENABLE_REDIS=1 of REDIS_URL in om te activeren)');
-}
-let jwt; try { jwt = require('jsonwebtoken'); } catch { console.warn('jsonwebtoken niet geïnstalleerd. Installeer met: npm i jsonwebtoken'); }
-const app = express();
+
+pool.connect((err) => {
+  if (err) { console.error('Fout bij verbinden:', err); return; }
+  console.log('PostgreSQL pool gereed.');
+  // Hier kun je init scripts voor tabellen en admin toevoegen indien gewenst
+});
 app.use(compression());
+// --- DEBUG: Toon alle users (tijdelijk, alleen voor test!) ---
+app.get('/api/debug-users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, email, role FROM users');
+    res.json({ users: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'db', detail: err.message });
+  }
+});
 if (helmet) {
   // Basis helmet
   app.use(helmet({
@@ -227,29 +219,30 @@ function ensureUsersTable() {
     KEY idx_users_email (email),
     KEY idx_users_resettoken (reset_token_hash)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
-  connection.query(ddl, (e)=> {
+  pool.query(ddl, (e)=> {
     if (e) return console.error('Users DDL error:', e.message);
     console.log('Users tabel gegarandeerd.');
   });
 }
 
 function ensureUsersSchemaUpgrade(){
-  connection.query('DESCRIBE users', (err, rows)=>{
+  // PostgreSQL: gebruik pg_catalog.pg_attribute en pg_type voor schema upgrades
+  pool.query(`SELECT attname FROM pg_attribute WHERE attrelid = 'users'::regclass AND attnum > 0 AND NOT attisdropped`, (err, res) => {
     if (err) { console.warn('Kan users schema niet lezen voor upgrade:', err.message); return; }
-    const have = new Set(rows.map(r=>r.Field));
+    const have = new Set(res.rows.map(r=>r.attname));
     const alters = [];
-    if (!have.has('role')) alters.push("ADD COLUMN role ENUM('admin','user') NOT NULL DEFAULT 'user' AFTER password");
-    if (!have.has('can_upload')) alters.push("ADD COLUMN can_upload TINYINT(1) NOT NULL DEFAULT 1 AFTER role");
-    if (!have.has('reset_token_hash')) alters.push("ADD COLUMN reset_token_hash CHAR(64) DEFAULT NULL AFTER can_upload");
-    if (!have.has('reset_token_expires_at')) alters.push("ADD COLUMN reset_token_expires_at DATETIME DEFAULT NULL AFTER reset_token_hash");
-  if (!have.has('created_at')) alters.push("ADD COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
-  if (!have.has('disabled')) alters.push("ADD COLUMN disabled TINYINT(1) NOT NULL DEFAULT 0 AFTER can_upload");
-  if (!have.has('disabled_reason')) alters.push("ADD COLUMN disabled_reason TEXT NULL AFTER disabled");
-  if (!have.has('disabled_at')) alters.push("ADD COLUMN disabled_at DATETIME NULL AFTER disabled_reason");
-  if (!have.has('pwd_must_change')) alters.push("ADD COLUMN pwd_must_change TINYINT(1) NOT NULL DEFAULT 0 AFTER created_at");
+    if (!have.has('role')) alters.push("ADD COLUMN role VARCHAR(10) NOT NULL DEFAULT 'user'");
+    if (!have.has('can_upload')) alters.push("ADD COLUMN can_upload BOOLEAN NOT NULL DEFAULT TRUE");
+    if (!have.has('reset_token_hash')) alters.push("ADD COLUMN reset_token_hash CHAR(64) DEFAULT NULL");
+    if (!have.has('reset_token_expires_at')) alters.push("ADD COLUMN reset_token_expires_at TIMESTAMP DEFAULT NULL");
+    if (!have.has('created_at')) alters.push("ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+    if (!have.has('disabled')) alters.push("ADD COLUMN disabled BOOLEAN NOT NULL DEFAULT FALSE");
+    if (!have.has('disabled_reason')) alters.push("ADD COLUMN disabled_reason TEXT NULL");
+    if (!have.has('disabled_at')) alters.push("ADD COLUMN disabled_at TIMESTAMP NULL");
+    if (!have.has('pwd_must_change')) alters.push("ADD COLUMN pwd_must_change BOOLEAN NOT NULL DEFAULT FALSE");
     if (alters.length){
       const sql = 'ALTER TABLE users ' + alters.join(', ');
-      connection.query(sql, e=>{
+      pool.query(sql, e=>{
         if (e) console.error('Users schema upgrade fout:', e.message); else console.log('Users schema geüpgraded:', alters.join('; '));
       });
     }
@@ -351,9 +344,9 @@ function ensureProductsIndexes(){
 }
 
 app.get('/users', (req, res) => {
-  connection.query('SELECT * FROM users', (err, results) => {
+  pool.query('SELECT * FROM users', (err, result) => {
     if (err) return res.status(500).send(err);
-    res.json(results);
+    res.json(result.rows);
   });
 });
 
@@ -370,9 +363,9 @@ app.post('/users', async (req, res) => {
   const finalCanUpload = (canUpload === 0 || canUpload === false) ? 0 : 1;
   try {
     const hash = await bcrypt.hash(password, 10);
-    connection.query('INSERT INTO users (username,email,password,role,can_upload) VALUES (?,?,?,?,?)', [username, email, hash, finalRole, finalCanUpload], (err, result) => {
+    pool.query('INSERT INTO users (username,email,password,role,can_upload) VALUES ($1,$2,$3,$4,$5) RETURNING id', [username, email, hash, finalRole, finalCanUpload], (err, result) => {
       if (err) return res.status(500).json({ error:'db', detail: err.code });
-      res.json({ id: result.insertId, username, email, role: finalRole, canUpload: !!finalCanUpload });
+      res.json({ id: result.rows[0].id, username, email, role: finalRole, canUpload: !!finalCanUpload });
     });
   } catch(e) { res.status(500).json({ error:'hash_failed' }); }
 });
@@ -393,10 +386,10 @@ app.post('/auth/login', loginLimiter, (req,res) => {
   const { username, usernameOrEmail, password } = req.body || {};
   const identifier = username || usernameOrEmail;
   if (!identifier || !password) return res.status(400).json({ error:'missing_credentials' });
-  connection.query('SELECT id, username, email, password, role, can_upload, disabled, pwd_must_change FROM users WHERE username=? OR email=? LIMIT 1',[identifier, identifier], async (err, rows)=> {
+  pool.query('SELECT id, username, email, password, role, can_upload, disabled, pwd_must_change FROM users WHERE username=$1 OR email=$2 LIMIT 1',[identifier, identifier], async (err, result)=> {
     if (err) return res.status(500).json({ error:'db', detail: err.message });
-    if (!rows.length) return res.status(401).json({ error:'invalid_login' });
-    const user = rows[0];
+    if (!result.rows.length) return res.status(401).json({ error:'invalid_login' });
+    const user = result.rows[0];
     let match = false;
     if (user.password.startsWith('$2')) { // bcrypt hash
       match = await bcrypt.compare(password, user.password);
@@ -406,7 +399,7 @@ app.post('/auth/login', loginLimiter, (req,res) => {
       if (match) {
         try {
           const newHash = await bcrypt.hash(password, 10);
-          connection.query('UPDATE users SET password=? WHERE id=?',[newHash, user.id], ()=>{});
+          pool.query('UPDATE users SET password=$1 WHERE id=$2',[newHash, user.id], ()=>{});
         } catch {}
       }
     }
@@ -417,7 +410,7 @@ app.post('/auth/login', loginLimiter, (req,res) => {
     }
     // Automatische promotie: zorg dat gebruiker 'admin' altijd role=admin krijgt
     if (user.username === 'admin' && user.role !== 'admin') {
-      connection.query('UPDATE users SET role="admin" WHERE id=?',[user.id], (e)=>{
+      pool.query('UPDATE users SET role=$1 WHERE id=$2',["admin", user.id], (e)=>{
         if (e) console.warn('Kon admin niet promoten tijdens login:', e.message); else console.log('Admin automatisch gepromoveerd bij login');
       });
       user.role = 'admin';

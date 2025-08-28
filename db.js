@@ -1,18 +1,16 @@
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || '',
-  database: process.env.DB_NAME || 'impexdeals'
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
-connection.connect((err) => {
+pool.connect((err) => {
   if (err) {
     console.error('Fout bij verbinden:', err);
   } else {
-  console.log('Verbonden met MySQL (impexdeals)!');
+    console.log('Verbonden met PostgreSQL (impexdeals)!');
   }
 });
 
-module.exports = connection;
+module.exports = pool;
