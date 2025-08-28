@@ -32,7 +32,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
   }
 }
-{
-  "username": "admin",
-  "password": "admin123"
-}
+.
