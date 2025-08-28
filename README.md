@@ -86,4 +86,5 @@ npm run build
 
 ### 14. License
 Interne projectdocumentatie – geen publieke licentie ingesteld.
+# Update voor Vercel deployment test
 
