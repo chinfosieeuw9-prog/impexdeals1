@@ -7,14 +7,12 @@ const pool = new Pool({
 });
 
 export async function GET(req: Request) {
-  // Kleine wijziging voor Vercel redeployment
   try {
     // Je kunt searchParams gebruiken indien nodig:
     // const { searchParams } = new URL(req.url);
     const result = await pool.query('SELECT id, username, email, role FROM users');
     return NextResponse.json({ users: result.rows });
   } catch (error: unknown) {
-    console.log('API /users error:', error);
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
